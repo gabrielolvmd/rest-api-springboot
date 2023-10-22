@@ -1,0 +1,32 @@
+package me.dio.service.impl;
+
+import me.dio.domain.model.User;
+import me.dio.domain.repository.UserRepository;
+import me.dio.service.UserService;
+import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public User findById(Long id) {
+        return userRepository.findById(id).orElseThrow(NoSuchElementException::new);
+    }
+
+    @Override
+    public User create(User userToCreate) {
+        if (userRepository.existsByAccountNumber(userToCreate.getAccount().getNumber())
+                || userRepository.existsByCardNumber(userToCreate.getCard().getNumber())) {
+            throw new IllegalArgumentException("Account number or card number already exists! Try another one. ");
+        }
+        return userRepository.save(userToCreate);
+    }
+}
